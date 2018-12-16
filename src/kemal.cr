@@ -1,6 +1,7 @@
 require "kemal"
 require "multi_auth"
 require "base64"
+require "json"
 
 MultiAuth.config("github", "4da9cc8ec5c3db8a4c0b", "b6ccc7b0613741d8031e3305b1d8bac8082ae194")
 
@@ -22,7 +23,10 @@ get "/auth/:provider/callback" do |env|
   # p user.image
   # p user.nickname
 
-  enc_uname = Base64.encode(user.name)
+  enc_uname = Base64.encode({
+    name: user.name,
+    avatar: user.image
+  }.to_json())
   auth_cookie = HTTP::Cookie.new(
     name: "github_auth",
     value: enc_uname,
@@ -56,8 +60,16 @@ end
 SOCKETS = [] of HTTP::WebSocket
 
 get "/chatroom" do |env|
-  title = "Chat"
-  render "src/views/chatroom.ecr"
+  github_auth = env.request.cookies["github_auth"]?
+  if github_auth
+    user = JSON.parse(Base64.decode_string(github_auth.value))
+    name = user["name"].as_s
+    avatar = user["avatar"].as_s
+    title = "Chat"
+    render "src/views/chatroom.ecr"
+  else
+    env.redirect "/"
+  end
 end
 
 ws "/chat" do |socket|
