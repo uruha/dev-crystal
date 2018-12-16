@@ -12,6 +12,10 @@ shards:
     github: jeromegn/kilt
     version: 0.4.0
 
+  multi_auth:
+    github: msa7/multi_auth
+    version: 1.0.0
+
   radix:
     github: luislavena/radix
     version: 0.3.8
