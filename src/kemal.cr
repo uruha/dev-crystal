@@ -17,11 +17,11 @@ end
 
 get "/auth/:provider/callback" do |env|
   user = multi_auth(env).user(env.params.query)
-  # p user
-  # p user.name
-  # p user.email
-  # p user.image
-  # p user.nickname
+  # user で取得できるもの
+  # user.name
+  # user.email
+  # user.image
+  # user.nickname
 
   enc_uname = Base64.encode({
     name: user.name,
@@ -33,7 +33,6 @@ get "/auth/:provider/callback" do |env|
     path: "/"
   )
   set_cookie = auth_cookie.to_set_cookie_header()
-  p set_cookie
   env.response.headers["Set-Cookie"] = set_cookie
   env.redirect "/chatroom"
 end
@@ -72,11 +71,20 @@ get "/chatroom" do |env|
   end
 end
 
-ws "/chat" do |socket|
+ws "/chat" do |socket, ctx|
   SOCKETS << socket
+  user = JSON.parse(Base64.decode_string(ctx.request.cookies["github_auth"].value))
 
   socket.on_message do |message|
-    SOCKETS.each { |socket| socket.send message }
+    messageJson = JSON.parse(message)
+    socketContext = JSON.build do |json|
+      json.object do
+        json.field "contents", messageJson
+        json.field "user", user
+      end
+    end
+
+    SOCKETS.each { |socket| socket.send socketContext }
   end
 
   socket.on_close do

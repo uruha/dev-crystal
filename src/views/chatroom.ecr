@@ -19,11 +19,17 @@
         socket = new WebSocket(`${websocketProtocol}//${location.host}/chat`);
         socket.onclose = function() { alert('Finished connection.') };
         socket.onmessage = (e) => {
-            const msg = JSON.parse(e.data);
-            console.log(msg); // for debug
+            const ctx = JSON.parse(e.data);
             const beforeLi = messages.firstChild;
             const li = document.createElement('li');
-            li.innerHTML = `<p>${msg.Message}</p>`;
+            li.innerHTML = `
+            <div>
+                <div>
+                    <img src=${ctx.user.avatar} height="50" />
+                    <span>${ctx.user.name}</span>
+                </div>
+                <p>${ctx.contents.Message}</p>
+            </div>`;
             messages.insertBefore(li, beforeLi);
         }
     }
