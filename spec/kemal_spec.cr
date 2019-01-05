@@ -1,9 +1,8 @@
 require "./spec_helper"
 
 describe Kemal do
-  # TODO: Write tests
-
-  it "works" do
-    false.should eq(true)
+  it "render root" do
+    get "/"
+    response.body.should match(/\>index\spage\</)
   end
 end

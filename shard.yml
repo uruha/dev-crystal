@@ -16,5 +16,8 @@ dependencies:
   kemal:
     github: kemalcr/kemal
     branch: master
+  spec-kemal:
+    github: kemalcr/spec-kemal
+    branch: master
   multi_auth:
     github: msa7/multi_auth
